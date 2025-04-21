@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Successful</title>
+</head>
+<body>
+    <h1>File(s) Uploaded Successfully!</h1>
+    <ul>
+        {% for file_url, qr_code in files %}
+            <li>
+                <a href="{{ file_url }}" target="_blank">{{ file_url }}</a><br>
+                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+            </li>
+        {% endfor %}
+    </ul>
+    <br><br>
+    <a href="/">Upload More Files</a>
+</body>
+</html>
+
+
