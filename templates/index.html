@@ -3,55 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-File Upload</title>
+    <title>ULD - Upload with Link & Download</title>
     <style>
-        #drop-area {
-            border: 2px dashed #ccc;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .drop-area {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px 20px;
             text-align: center;
             cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
         }
+
+        .drop-area:hover {
+            border-color: #764ba2;
+            background: #f0f3ff;
+        }
+
+        .drop-area.dragging {
+            border-color: #764ba2;
+            background: #e8ecff;
+            transform: scale(1.02);
+        }
+
+        .drop-area p {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .drop-area small {
+            color: #999;
+            display: block;
+        }
+
+        #file-input {
+            display: none;
+        }
+
         .file-list {
-            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            background: #f5f5f5;
+            padding: 10px 12px;
+            border-radius: 6px;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item .remove {
+            cursor: pointer;
+            color: #999;
+            padding: 0 5px;
+        }
+
+        .file-item .remove:hover {
+            color: #e74c3c;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            border-left: 4px solid #c33;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .drop-area {
+                padding: 30px 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Upload Files</h1>
-    <form action="/" method="POST" enctype="multipart/form-data">
-        <div id="drop-area">
-            <p>Drag & Drop Files Here or Click to Select</p>
-            <input type="file" name="files" id="file-input" multiple required hidden>
-        </div>
-        <div class="file-list" id="file-list"></div>
+    <div class="container">
+        <h1>📤 ULD</h1>
+        <p class="subtitle">Upload with Link & Download</p>
 
-        <label for="filename">Enter Filename (if 1 file) or ZIP name:</label>
-        <input type="text" name="filename" id="filename-input" required><br><br>
+        {% if error %}
+            <div class="error">⚠️ {{ error }}</div>
+        {% endif %}
 
-        <button type="submit">Upload</button>
-    </form>
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <div class="drop-area" id="drop-area">
+                <p>Drag files here or click to select</p>
+                <small>Any file type, up to 100MB</small>
+                <input type="file" name="file" id="file-input" multiple>
+            </div>
+
+            <div class="file-list" id="file-list"></div>
+
+            <div class="form-group">
+                <label for="filename-input">
+                    Custom name <span style="color: #999; font-weight: normal;">(optional)</span>
+                </label>
+                <input type="text" name="filename" id="filename-input" placeholder="">
+            </div>
+
+            <button type="submit" id="submit-btn" disabled>Upload Files</button>
+        </form>
+    </div>
 
     <script>
         const dropArea = document.getElementById("drop-area");
         const fileInput = document.getElementById("file-input");
         const fileList = document.getElementById("file-list");
         const filenameInput = document.getElementById("filename-input");
+        const submitBtn = document.getElementById("submit-btn");
 
+        // Click to select files
         dropArea.addEventListener("click", () => fileInput.click());
 
-        dropArea.addEventListener("dragover", (event) => {
-            event.preventDefault();
-            dropArea.style.border = "2px solid #000";
+        // Drag and drop
+        dropArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropArea.classList.add("dragging");
         });
 
         dropArea.addEventListener("dragleave", () => {
-            dropArea.style.border = "2px dashed #ccc";
+            dropArea.classList.remove("dragging");
         });
 
-        dropArea.addEventListener("drop", (event) => {
-            event.preventDefault();
-            dropArea.style.border = "2px dashed #ccc";
-            fileInput.files = event.dataTransfer.files;
+        dropArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropArea.classList.remove("dragging");
+            fileInput.files = e.dataTransfer.files;
             updateFileList();
         });
 
@@ -59,16 +251,44 @@
 
         function updateFileList() {
             fileList.innerHTML = "";
-            let files = fileInput.files;
-            for (let file of files) {
-                const div = document.createElement("div");
-                div.textContent = file.name;
-                fileList.appendChild(div);
+            const files = Array.from(fileInput.files);
+
+            if (files.length === 0) {
+                submitBtn.disabled = true;
+                filenameInput.placeholder = "";
+                return;
             }
-            filenameInput.placeholder = files.length > 1 ? "Enter ZIP filename" : "Enter file name";
+
+            submitBtn.disabled = false;
+            filenameInput.placeholder = files.length === 1 ? "Optional: new filename" : "Optional: ZIP name";
+
+            files.forEach((file, index) => {
+                const div = document.createElement("div");
+                div.className = "file-item";
+                div.innerHTML = `
+                    <span>${file.name} (${formatSize(file.size)})</span>
+                    <span class="remove" onclick="removeFile(${index})">✕</span>
+                `;
+                fileList.appendChild(div);
+            });
+        }
+
+        function removeFile(index) {
+            const dt = new DataTransfer();
+            const files = Array.from(fileInput.files);
+            files.splice(index, 1);
+            files.forEach(file => dt.items.add(file));
+            fileInput.files = dt.files;
+            updateFileList();
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return "0 B";
+            const k = 1024;
+            const sizes = ["B", "KB", "MB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
         }
     </script>
 </body>
 </html>
-
-
