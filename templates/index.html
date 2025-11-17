@@ -1,249 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULD - Upload with Link & Download</title>
+    <title>ULD - File Upload & Share</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .drop-area {
-            border: 2px dashed #667eea;
-            border-radius: 8px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #f8f9ff;
-        }
-
-        .drop-area:hover {
-            border-color: #764ba2;
-            background: #f0f3ff;
-        }
-
-        .drop-area.dragging {
-            border-color: #764ba2;
-            background: #e8ecff;
-            transform: scale(1.02);
-        }
-
-        .drop-area p {
-            color: #667eea;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .drop-area small {
-            color: #999;
-            display: block;
-        }
-
-        #file-input {
-            display: none;
-        }
-
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .file-item {
-            background: #f5f5f5;
-            padding: 10px 12px;
-            border-radius: 6px;
-            color: #333;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .file-item .remove {
-            cursor: pointer;
-            color: #999;
-            padding: 0 5px;
-        }
-
-        .file-item .remove:hover {
-            color: #e74c3c;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        label {
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="text"] {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        input[type="text"]::placeholder {
-            color: #999;
-        }
-
-        button {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            border-left: 4px solid #c33;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-
-            h1 {
-                font-size: 24px;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            .drop-area {
-                padding: 30px 15px;
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
             }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .file-item-enter {
+            animation: fadeInUp 0.3s ease-out;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>📤 ULD</h1>
-        <p class="subtitle">Upload with Link & Download</p>
-
-        {% if error %}
-            <div class="error">⚠️ {{ error }}</div>
-        {% endif %}
-
-        <form action="/" method="POST" enctype="multipart/form-data">
-            <div class="drop-area" id="drop-area">
-                <p>Drag files here or click to select</p>
-                <small>Any file type, up to 100MB</small>
-                <input type="file" name="file" id="file-input" multiple>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl fade-in-up">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/50 mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
             </div>
+            <h1 class="text-4xl font-bold text-white mb-2">ULD</h1>
+            <p class="text-slate-400 text-sm">Upload, Link & Download - Share files instantly</p>
+        </div>
 
-            <div class="file-list" id="file-list"></div>
-
-            <div class="form-group">
-                <label for="filename-input">
-                    Custom name <span style="color: #999; font-weight: normal;">(optional)</span>
-                </label>
-                <input type="text" name="filename" id="filename-input" placeholder="">
+        <!-- Main Card -->
+        <div class="glass rounded-2xl shadow-2xl p-8">
+            {% if error %}
+            <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 fade-in-up">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-red-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-red-300 text-sm">{{ error }}</p>
+                </div>
             </div>
+            {% endif %}
 
-            <button type="submit" id="submit-btn" disabled>Upload Files</button>
-        </form>
+            <form action="/" method="POST" enctype="multipart/form-data">
+                <!-- Drop Zone -->
+                <div id="drop-area" class="relative group cursor-pointer transition-all duration-300">
+                    <input type="file" name="file" id="file-input" multiple class="hidden">
+                    <div class="border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-xl p-12 text-center transition-all duration-300 bg-slate-800/30 hover:bg-slate-800/50 group-hover:scale-[1.02]">
+                        <div class="mb-4">
+                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 group-hover:bg-cyan-500/10 transition-colors duration-300">
+                                <svg class="w-10 h-10 text-slate-400 group-hover:text-cyan-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-white font-semibold mb-2">Drop files here or click to browse</p>
+                        <p class="text-slate-400 text-sm">Any file type supported</p>
+                    </div>
+                    <div id="drag-overlay" class="hidden absolute inset-0 bg-cyan-500/10 border-2 border-cyan-500 rounded-xl flex items-center justify-center">
+                        <p class="text-cyan-400 font-semibold text-lg">Drop files to upload</p>
+                    </div>
+                </div>
+
+                <!-- File List -->
+                <div id="file-list" class="mt-6 space-y-2"></div>
+
+                <!-- Custom Filename -->
+                <div class="mt-6">
+                    <label for="filename-input" class="block text-sm font-medium text-slate-300 mb-2">
+                        Custom filename <span class="text-slate-500">(optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="filename"
+                        id="filename-input"
+                        class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                        placeholder="Enter custom name..."
+                    >
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    id="submit-btn"
+                    disabled
+                    class="w-full mt-6 px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 disabled:shadow-none transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center space-x-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <span>Upload Files</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-6 text-slate-500 text-sm">
+            <p>Secure file sharing with QR codes</p>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.js"></script>
     <script>
         const dropArea = document.getElementById("drop-area");
+        const dragOverlay = document.getElementById("drag-overlay");
         const fileInput = document.getElementById("file-input");
         const fileList = document.getElementById("file-list");
         const filenameInput = document.getElementById("filename-input");
         const submitBtn = document.getElementById("submit-btn");
 
         // Click to select files
-        dropArea.addEventListener("click", () => fileInput.click());
-
-        // Drag and drop
-        dropArea.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropArea.classList.add("dragging");
+        dropArea.addEventListener("click", (e) => {
+            if (e.target !== dragOverlay) {
+                fileInput.click();
+            }
         });
 
-        dropArea.addEventListener("dragleave", () => {
-            dropArea.classList.remove("dragging");
+        // Drag and drop handlers
+        ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ["dragenter", "dragover"].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dragOverlay.classList.remove("hidden");
+            });
+        });
+
+        ["dragleave", "drop"].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dragOverlay.classList.add("hidden");
+            });
         });
 
         dropArea.addEventListener("drop", (e) => {
-            e.preventDefault();
-            dropArea.classList.remove("dragging");
-            fileInput.files = e.dataTransfer.files;
+            const dt = e.dataTransfer;
+            fileInput.files = dt.files;
             updateFileList();
         });
 
@@ -255,19 +201,33 @@
 
             if (files.length === 0) {
                 submitBtn.disabled = true;
-                filenameInput.placeholder = "";
+                filenameInput.placeholder = "Enter custom name...";
                 return;
             }
 
             submitBtn.disabled = false;
-            filenameInput.placeholder = files.length === 1 ? "Optional: new filename" : "Optional: ZIP name";
+            filenameInput.placeholder = files.length === 1 ? "Optional: new filename" : "Optional: ZIP archive name";
 
             files.forEach((file, index) => {
                 const div = document.createElement("div");
-                div.className = "file-item";
+                div.className = "file-item-enter flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-slate-600 transition-all duration-300";
                 div.innerHTML = `
-                    <span>${file.name} (${formatSize(file.size)})</span>
-                    <span class="remove" onclick="removeFile(${index})">✕</span>
+                    <div class="flex items-center space-x-3 flex-1 min-w-0">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-white font-medium truncate">${file.name}</p>
+                            <p class="text-slate-400 text-sm">${formatSize(file.size)}</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="flex-shrink-0 ml-3 w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 `;
                 fileList.appendChild(div);
             });
@@ -285,7 +245,7 @@
         function formatSize(bytes) {
             if (bytes === 0) return "0 B";
             const k = 1024;
-            const sizes = ["B", "KB", "MB"];
+            const sizes = ["B", "KB", "MB", "GB"];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
         }
